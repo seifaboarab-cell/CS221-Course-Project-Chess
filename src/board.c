@@ -13,7 +13,7 @@ char board[8][8] = {
     {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
 };
 
-void display()
+void display_board()
 {
     int i, j, k;
 
@@ -53,14 +53,14 @@ void display()
     printf("\n");
 }
 
-void white_black(int x, int y)
+void set_square_color(int y, int x)
 {
-    if ((x + y) & 1 == 0)
+    if (((x + y) & 1) == 0)
     {
-        board[x][y] == '-';
+        board[y][x] = '-';
     }
     else
     {
-        board[x][y] == ' ';
+        board[y][x] = ' ';
     }
 }
