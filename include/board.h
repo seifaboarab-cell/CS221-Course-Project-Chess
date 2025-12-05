@@ -3,8 +3,8 @@
 
 extern char board[8][8];
 
-void display();
+void display_board();
 
-void white_black();
+void set_square_color(int y, int x);
 
 #endif
