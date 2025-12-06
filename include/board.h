@@ -2,6 +2,8 @@
 #define BOARD_H
 
 extern char board[8][8];
+extern char capture[2][15];
+extern int num_capture[2];
 
 void display_board();
 
