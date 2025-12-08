@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
-bool can_move_rook(y1, x1, y2, x2)
+bool can_move_rook(int y1, int x1, int y2, int x2)
 {
     if (!((y2 == y1 && x2 - x1 != 0) || (x2 == x1 && y2 - y1 != 0)))
     {
@@ -54,8 +54,5 @@ bool can_move_rook(y1, x1, y2, x2)
             }
         }
     }
-    else
-    {
-        return true;
-    }
+    return true;
 }

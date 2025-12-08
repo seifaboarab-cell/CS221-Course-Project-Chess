@@ -18,9 +18,11 @@ bool promotion(int y1, int x1, int y2, int x2, bool is_black);
 int main()
 {
     char *players[] = {"White", "Black"};
-    for (int i = 0;;)
+    commit_position();
+    for (;;)
     {
-        int turn = i / 2 + 1, player_number = i % 2;
+        turn = half_turn / 2 + 1;
+        player_number = half_turn % 2;
         char input[10];
         display_board();
         printf("%d-%s: ", turn, players[player_number]);
@@ -29,7 +31,7 @@ int main()
         if (!move(y1, x1, y2, x2, player_number))
             continue;
 
-        i++;
+        half_turn++;
     }
     return 0;
 }
@@ -60,23 +62,23 @@ bool move(int y1, int x1, int y2, int x2, bool is_black)
         break;
     case 'q':
     case 'Q':
-        // can_move = can_move_queen(y1, x1, y2, x2);
+        can_move = can_move_queen(y1, x1, y2, x2);
         break;
     case 'r':
     case 'R':
-        // can_move = can_move_rook(y1, x1, y2, x2);
+        can_move = can_move_rook(y1, x1, y2, x2);
         break;
     case 'b':
     case 'B':
-        // can_move = can_move_bishop(y1, x1, y2, x2);
+        can_move = can_move_bishop(y1, x1, y2, x2);
         break;
     case 'n':
     case 'N':
-        // can_move = can_move_knight(y1, x1, y2, x2);
+        can_move = can_move_knight(y1, x1, y2, x2);
         break;
     case 'p':
     case 'P':
-        // can_move = can_move_pawn(y1, x1, y2, x2, is_black);
+        can_move = can_move_pawn(y1, x1, y2, x2, is_black);
         break;
     }
     if (!can_move)
@@ -84,7 +86,15 @@ bool move(int y1, int x1, int y2, int x2, bool is_black)
         printf("Illegal move!\n");
         return false;
     }
+    if (isalpha(board[y2][x2]))
+        capture[!is_black][num_capture[!is_black]++] = board[y2][x2];
     board[y2][x2] = board[y1][x1];
     set_square_color(y1, x1);
+
+    //if (is_in_check(is_black)){
+        //reset_position();
+        //return false;
+    //}
+    commit_position();
     return true;
 }

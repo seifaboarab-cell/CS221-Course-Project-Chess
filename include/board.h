@@ -1,12 +1,27 @@
 #ifndef BOARD_H
 #define BOARD_H
+#include <stdbool.h>
 
 extern char board[8][8];
 extern char capture[2][15];
 extern int num_capture[2];
+extern int king_location[2][2];
+extern bool king_moved[2];
+extern bool a_rook_moved[2];
+extern bool h_rook_moved[2];
+extern int en_passant_flags[2][8];
+// for example: en_passant_flag[0][3] = 6 --> the white pawn in the 4th column moved 2 steps forward on move #6
+
+extern int half_turn;
+extern int turn;
+extern int player_number;
 
 void display_board();
 
 void set_square_color(int y, int x);
+
+bool commit_position();
+
+void reset_postion();
 
 #endif

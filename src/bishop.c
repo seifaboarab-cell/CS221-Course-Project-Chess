@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdlib.h>
-bool can_move_bishop(y1, x1, y2, x2)
+bool can_move_bishop(int y1, int x1, int y2, int x2)
 {
     if (!(abs(y2 - y1) == abs(x2 - x1)))
     {
@@ -12,7 +12,7 @@ bool can_move_bishop(y1, x1, y2, x2)
     {
         if (x2 < x1)
         {
-            for (int i = x1 - 1, z = y1 - 1; i > x2, z > y2; i--, z--)
+            for (int i = x1 - 1, z = y1 - 1; i > x2 && z > y2; i--, z--)
             {
                 if (isalpha(board[z][i]))
                 {
@@ -22,7 +22,7 @@ bool can_move_bishop(y1, x1, y2, x2)
         }
         else
         {
-            for (int i = x1 + 1, z = y1 - 1; i<x2, z> y2; i++, z--)
+            for (int i = x1 + 1, z = y1 - 1; i<x2 && z> y2; i++, z--)
             {
                 if (isalpha(board[z][i]))
                 {
@@ -35,7 +35,7 @@ bool can_move_bishop(y1, x1, y2, x2)
     {
         if (x2 < x1)
         {
-            for (int i = x1 - 1, z = y1 + 1; i > x2, z < y2; i--, z++)
+            for (int i = x1 - 1, z = y1 + 1; i > x2 && z < y2; i--, z++)
             {
                 if (isalpha(board[z][i]))
                 {
@@ -45,7 +45,7 @@ bool can_move_bishop(y1, x1, y2, x2)
         }
         else
         {
-            for (int i = x1 + 1, z = y1 + 1; i < x2, z < y2; i++, z++)
+            for (int i = x1 + 1, z = y1 + 1; i < x2 && z < y2; i++, z++)
             {
                 if (isalpha(board[z][i]))
                 {
@@ -54,8 +54,7 @@ bool can_move_bishop(y1, x1, y2, x2)
             }
         }
     }
-    else
-    {
-        return true;
-    }
+
+     return true;
+
 }

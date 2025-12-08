@@ -5,6 +5,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
-bool can_move_rook(y1, x1, y2, x2);
+bool can_move_rook(int y1, int x1, int y2, int x2);
 
 #endif

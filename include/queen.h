@@ -8,6 +8,6 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-bool can_move_queen(y1, x1, y2, x2);
+bool can_move_queen(int y1, int x1, int y2, int x2);
 
 #endif
