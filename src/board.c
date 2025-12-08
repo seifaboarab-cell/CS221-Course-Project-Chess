@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-char capture[2][15];
-int num_capture[2] = {0, 0};
+
 
 char board[8][8] = {
     {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
@@ -15,6 +14,17 @@ char board[8][8] = {
     {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
     {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
 };
+char capture[2][15];
+int num_capture[2] = {0, 0};
+int king_location[2][2] = {{0, 4}, {7, 4}};
+bool king_moved[2] = {false, false};
+bool a_rook_moved[2] = {false, false};
+bool h_rook_moved[2] = {false, false};
+int en_passant_flags[2][8] = {{-1, -1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1, -1}};
+
+int half_turn = 0;
+int turn = 1;
+int player_number = 0;
 
 void display_board()
 {

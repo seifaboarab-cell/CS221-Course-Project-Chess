@@ -18,9 +18,10 @@ bool promotion(int y1, int x1, int y2, int x2, bool is_black);
 int main()
 {
     char *players[] = {"White", "Black"};
-    for (int i = 0;;)
+    for (;;)
     {
-        int turn = i / 2 + 1, player_number = i % 2;
+        turn = half_turn / 2 + 1;
+        player_number = half_turn % 2;
         char input[10];
         display_board();
         printf("%d-%s: ", turn, players[player_number]);
@@ -29,7 +30,7 @@ int main()
         if (!move(y1, x1, y2, x2, player_number))
             continue;
 
-        i++;
+        half_turn++;
     }
     return 0;
 }
