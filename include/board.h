@@ -22,4 +22,6 @@ void set_square_color(int y, int x);
 
 bool commit_position();
 
+void reset_postion();
+
 #endif

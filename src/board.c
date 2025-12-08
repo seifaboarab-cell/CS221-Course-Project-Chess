@@ -137,3 +137,23 @@ bool commit_position(){
     current_position->player_number = player_number;
     return true;  
 }
+
+void reset_postion(){
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            board[i][j] = current_position->board[i][j];
+    for (int i = 0; i < 2; i++){
+        for (int j = 0; j < 8; j++)
+            en_passant_flags[i][j] = current_position->en_passant_flags[i][j];
+
+        for (int j = 0; j < 2; j++)
+            king_location[i][j] = current_position->king_location[i][j];
+        king_moved[i] = current_position->king_moved[i];
+        a_rook_moved[i] = current_position->a_rook_moved[i];
+        h_rook_moved[i] = current_position->h_rook_moved[i];
+        num_capture[i] = current_position->num_capture[i];
+        
+        for (int j = 0; j < num_capture[i]; j++)
+            capture[i][j] = current_position->capture[i][j];
+    }
+}
