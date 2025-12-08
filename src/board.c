@@ -1,5 +1,6 @@
 #include "board.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -109,6 +110,68 @@ void set_square_color(int y, int x)
     }
 }
 
+bool is_in_check(bool is_black){
+    int y = king_location[is_black][0], x =  king_location[is_black][1];
+    char queen = is_black? 'q' : 'Q', rook = is_black? 'r' : 'R', bishop = is_black? 'b' : 'B',
+         knight = is_black? 'n' : 'N', pawn = is_black? 'p' : 'P', king = is_black? 'k' : 'K';
+    int rook_moves[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int bishop_moves[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    int knight_moves[8][2] = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {-1, 2}, {1, -2}, {-1, -2}};
+    int king_moves[8][2] = {{1,1}, {1,0}, {1, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {0, -1}};
+    int pawn_moves[2][2] = {{1, 1}, {1, -1}};
+    if (is_black)
+    {
+        pawn_moves[0][0] = -1;
+        pawn_moves[1][0] = -1;
+    }
+
+    for (int i = 0; i < 8; i++){
+        if (y + knight_moves[i][0] >= 0 && y + knight_moves[i][0] < 8 &&
+             x + knight_moves[i][1] >= 0 && x + knight_moves[i][1] < 8)
+            if(board[y + knight_moves[i][0]][x + knight_moves[i][1]] == knight)
+                return true;
+        
+        if (y + king_moves[i][0] >= 0 && y + king_moves[i][0] < 8 &&
+             x + king_moves[i][1] >= 0 && x + king_moves[i][1] < 8)
+            if (board[y + king_moves[i][0]][x + king_moves[i][1]] == king)
+                return true;
+    }
+    
+    for (int i = 0; i < 2; i++)
+        if (y + pawn_moves[i][0] >= 0 && y + pawn_moves[i][0] < 8 &&
+             x + pawn_moves[i][1] >= 0 && x + pawn_moves[i][1] < 8)
+            if (board[y + pawn_moves[i][0]][x + pawn_moves[i][1]] == pawn)
+                return true;
+    
+    for (int i = 0; i < 4; i++)
+    {
+
+        for (int j = 1; j < 8; j++)
+        {
+            if (y + rook_moves[i][0] * j < 0 && y + rook_moves[i][0] * j > 7 &&
+             x + rook_moves[i][1] * j < 0 && x + rook_moves[i][1] * j > 7)
+                break;
+            if (board[y + rook_moves[i][0] * j][x + rook_moves[i][1] * j] == rook ||
+                board[y + rook_moves[i][0] * j][x + rook_moves[i][1] * j] == queen)
+                    return true;
+            if (isalpha(board[y + rook_moves[i][0] * j][x + rook_moves[i][1] * j]))
+                break;
+        }
+        for (int j = 1; j < 8; j++)
+        {
+            if (y + bishop_moves[i][0] * j < 0 && y + bishop_moves[i][0] * j > 7 &&
+             x + bishop_moves[i][1] * j < 0 && x + bishop_moves[i][1] * j > 7)
+                break;
+            if (board[y + bishop_moves[i][0] * j][x + bishop_moves[i][1] * j] == bishop ||
+                board[y + bishop_moves[i][0] * j][x + bishop_moves[i][1] * j] == queen)
+                    return true;
+            if (isalpha(board[y + bishop_moves[i][0] * j][x + bishop_moves[i][1] * j]))
+                break;
+        }
+    }
+    return false;
+}
+
 bool commit_position(){
     Position *temp = malloc(sizeof(Position));
     if (temp == NULL)
@@ -138,7 +201,7 @@ bool commit_position(){
     return true;  
 }
 
-void reset_postion(){
+void reset_position(){
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++)
             board[i][j] = current_position->board[i][j];

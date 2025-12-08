@@ -25,6 +25,9 @@ int main()
         player_number = half_turn % 2;
         char input[10];
         display_board();
+        bool in_check = is_in_check(player_number);
+        if (in_check)
+            printf("Check!\n");
         printf("%d-%s: ", turn, players[player_number]);
         scanf("%s", input);
         int x1 = toupper(input[0]) - 'A', y1 = input[1] - '1', x2 = toupper(input[2]) - 'A', y2 = input[3] - '1';
@@ -67,7 +70,7 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
         if (can_move)
         {
             king_location[is_black][0] = y2;
-            king_location[is_black][0] = x2;
+            king_location[is_black][1] = x2;
         }
         break;
     case 'q':
@@ -101,10 +104,12 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
     board[y2][x2] = board[y1][x1];
     set_square_color(y1, x1);
 
-    //if (is_in_check(is_black)){
-        //reset_position();
-        //return false;
-    //}
+    if (is_in_check(is_black))
+    {
+        printf("Illegal move: you cannot move your king into check or leave him in check.\n");
+        reset_position();
+        return false;
+    }
     commit_position();
     return true;
 }

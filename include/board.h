@@ -20,8 +20,10 @@ void display_board();
 
 void set_square_color(int y, int x);
 
+bool is_in_check(bool is_black);
+
 bool commit_position();
 
-void reset_postion();
+void reset_position();
 
 #endif
