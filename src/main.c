@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool move(int y1, int x1, int y2, int x2, bool is_black);
+bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece);
 // Note: Parameters are ordered as (y, x) because the board is accessed as board[y][x].
 // We should keep this ordering consistent throughout the code.
 bool promotion(int y1, int x1, int y2, int x2, bool is_black);
@@ -28,7 +28,7 @@ int main()
         printf("%d-%s: ", turn, players[player_number]);
         scanf("%s", input);
         int x1 = toupper(input[0]) - 'A', y1 = input[1] - '1', x2 = toupper(input[2]) - 'A', y2 = input[3] - '1';
-        if (!move(y1, x1, y2, x2, player_number))
+        if (!move(y1, x1, y2, x2, player_number, input[4]))
             continue;
 
         half_turn++;
@@ -36,7 +36,7 @@ int main()
     return 0;
 }
 
-bool move(int y1, int x1, int y2, int x2, bool is_black)
+bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
 {
     if (x1 > 7 || x1 < 0 || x2 > 7 || x2 < 0 || y1 > 7 || y1 < 0 || y2 > 7 || y2 < 0)
     {
@@ -53,12 +53,22 @@ bool move(int y1, int x1, int y2, int x2, bool is_black)
         printf("You cannot capture one of your own pieces.\n");
         return false;
     }
+    if (promotion_piece != '\0' && tolower(board[y1][x1]) != 'p')
+    {
+        printf("Illegal move!\n");
+        return false;
+    }
     bool can_move = true;
     switch (board[y1][x1])
     {
     case 'k':
     case 'K':
-        // can_move = can_move_king(y1, x1, y2, x2);
+        can_move = can_move_king(y1, x1, y2, x2);
+        if (can_move)
+        {
+            king_location[is_black][0] = y2;
+            king_location[is_black][0] = x2;
+        }
         break;
     case 'q':
     case 'Q':
@@ -78,7 +88,7 @@ bool move(int y1, int x1, int y2, int x2, bool is_black)
         break;
     case 'p':
     case 'P':
-        can_move = can_move_pawn(y1, x1, y2, x2, is_black);
+        can_move = can_move_pawn(y1, x1, y2, x2, is_black, promotion_piece);
         break;
     }
     if (!can_move)
