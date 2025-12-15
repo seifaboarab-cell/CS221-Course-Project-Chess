@@ -6,4 +6,6 @@
 
 bool can_move_king(int y1, int x1, int y2, int x2);
 
+bool castle(int y1, int x1, int y2, int x2, bool is_black);
+
 #endif

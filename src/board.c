@@ -126,46 +126,45 @@ bool is_in_check(bool is_black){
     }
 
     for (int i = 0; i < 8; i++){
-        if (y + knight_moves[i][0] >= 0 && y + knight_moves[i][0] < 8 &&
-             x + knight_moves[i][1] >= 0 && x + knight_moves[i][1] < 8)
-            if(board[y + knight_moves[i][0]][x + knight_moves[i][1]] == knight)
+        int moved_y = y + knight_moves[i][0], moved_x = x + knight_moves[i][1];
+        if (moved_y >= 0 && moved_y < 8 && moved_x >= 0 && moved_x < 8)
+            if (board[moved_y][moved_x] == knight)
                 return true;
         
-        if (y + king_moves[i][0] >= 0 && y + king_moves[i][0] < 8 &&
-             x + king_moves[i][1] >= 0 && x + king_moves[i][1] < 8)
-            if (board[y + king_moves[i][0]][x + king_moves[i][1]] == king)
+        moved_y = y + king_moves[i][0], moved_x = x + king_moves[i][1];
+        if (moved_y >= 0 && moved_y < 8 && moved_x >= 0 && moved_x < 8)
+            if (board[moved_y][moved_x] == king)
                 return true;
     }
     
     for (int i = 0; i < 2; i++)
-        if (y + pawn_moves[i][0] >= 0 && y + pawn_moves[i][0] < 8 &&
-             x + pawn_moves[i][1] >= 0 && x + pawn_moves[i][1] < 8)
-            if (board[y + pawn_moves[i][0]][x + pawn_moves[i][1]] == pawn)
+    {
+        int moved_y = y + pawn_moves[i][0], moved_x = x + pawn_moves[i][1];
+        if (moved_y >= 0 && moved_y < 8 && moved_x >= 0 && moved_x < 8)
+            if (board[moved_y][moved_x] == pawn)
                 return true;
-    
+    }
     for (int i = 0; i < 4; i++)
     {
 
         for (int j = 1; j < 8; j++)
         {
-            if (y + rook_moves[i][0] * j < 0 && y + rook_moves[i][0] * j > 7 &&
-             x + rook_moves[i][1] * j < 0 && x + rook_moves[i][1] * j > 7)
+            int moved_y = y + rook_moves[i][0] * j, moved_x = x + rook_moves[i][1] * j;
+            if (moved_y < 0 || moved_y > 7 || moved_x < 0 || moved_x > 7)
                 break;
-            if (board[y + rook_moves[i][0] * j][x + rook_moves[i][1] * j] == rook ||
-                board[y + rook_moves[i][0] * j][x + rook_moves[i][1] * j] == queen)
+            if (board[moved_y][moved_x] == rook || board[moved_y][moved_x] == queen)
                     return true;
-            if (isalpha(board[y + rook_moves[i][0] * j][x + rook_moves[i][1] * j]))
+            if (isalpha(board[moved_y][moved_x]))
                 break;
         }
         for (int j = 1; j < 8; j++)
         {
-            if (y + bishop_moves[i][0] * j < 0 && y + bishop_moves[i][0] * j > 7 &&
-             x + bishop_moves[i][1] * j < 0 && x + bishop_moves[i][1] * j > 7)
+            int moved_y = y + bishop_moves[i][0] * j, moved_x = x + bishop_moves[i][1] * j;
+            if (moved_y < 0 || moved_y > 7 || moved_x < 0 || moved_x * j > 7)
                 break;
-            if (board[y + bishop_moves[i][0] * j][x + bishop_moves[i][1] * j] == bishop ||
-                board[y + bishop_moves[i][0] * j][x + bishop_moves[i][1] * j] == queen)
+            if (board[moved_y][moved_x] == bishop || board[moved_y][moved_x] == queen)
                     return true;
-            if (isalpha(board[y + bishop_moves[i][0] * j][x + bishop_moves[i][1] * j]))
+            if (isalpha(board[moved_y][moved_x]))
                 break;
         }
     }

@@ -13,8 +13,6 @@
 bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece);
 // Note: Parameters are ordered as (y, x) because the board is accessed as board[y][x].
 // We should keep this ordering consistent throughout the code.
-bool promotion(int y1, int x1, int y2, int x2, bool is_black);
-// this funcion start after move function and validility function of (king)
 int main()
 {
     char *players[] = {"White", "Black"};
@@ -46,12 +44,12 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
         printf("Invalid input!\n");
         return false;
     }
-    if (!islower(board[y1][x1]) && !is_black || !isupper(board[y1][x1]) && is_black)
+    if ((!islower(board[y1][x1]) && !is_black) || (!isupper(board[y1][x1]) && is_black))
     {
         printf("You don't have a piece on this square.\n");
         return false;
     }
-    if (islower(board[y2][x2]) && !is_black || isupper(board[y2][x2]) && is_black)
+    if ((islower(board[y2][x2]) && !is_black) || (isupper(board[y2][x2]) && is_black))
     {
         printf("You cannot capture one of your own pieces.\n");
         return false;
@@ -66,11 +64,21 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
     {
     case 'k':
     case 'K':
+        if (castle(y1, x1, y2, x2, is_black))
+        {
+            // Unlike other move functions, castle() and en_passant() implicitly perform
+            // the move on the board and verify that the king is not left in check
+            // and if the king is in check, they reset the position.
+            // That is why, if they return true, the function can return true directly.
+            commit_position();
+            return true;
+        } 
         can_move = can_move_king(y1, x1, y2, x2);
         if (can_move)
         {
             king_location[is_black][0] = y2;
             king_location[is_black][1] = x2;
+            king_moved[is_black] = true;
         }
         break;
     case 'q':
@@ -80,6 +88,13 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
     case 'r':
     case 'R':
         can_move = can_move_rook(y1, x1, y2, x2);
+        if (can_move && y1 == 0 + is_black * 7)
+        {
+            if (x1 == 0)
+                a_rook_moved[is_black] = true;
+            else if (x1 == 7)
+                h_rook_moved[is_black] = true;
+        }
         break;
     case 'b':
     case 'B':
@@ -91,6 +106,15 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
         break;
     case 'p':
     case 'P':
+        if (en_passant(y1, x1, y2, x2, is_black))
+        {
+            // Unlike other move functions, castle() and en_passant() implicitly perform
+            // the move on the board and verify that the king is not left in check
+            // and if the king is in check, they reset the position.
+            // That is why, if they return true, the function can return true directly.
+            commit_position();
+            return true;
+        }    
         can_move = can_move_pawn(y1, x1, y2, x2, is_black, promotion_piece);
         break;
     }
