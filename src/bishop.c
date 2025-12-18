@@ -69,7 +69,7 @@ bool bishop_has_legal_move(int y1, int x1, bool is_black)
             {
                 if (is_black)
                 {
-                    if (!(isupper(board[moved_y][moved_x])))
+                    if (!(isalpha(board[moved_y][moved_x])))
                     {
                         board[moved_y][moved_x] = 'B';
                         set_square_color(y1, x1);
@@ -80,14 +80,35 @@ bool bishop_has_legal_move(int y1, int x1, bool is_black)
                         }
                         else
                         {
-                            reset_position();
                             continue;
                         }
                     }
+                    else
+                    {
+                        if (isupper(board[moved_y][moved_x]))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            board[moved_y][moved_x] = 'B';
+                            set_square_color(y1, x1);
+                            if (!(is_in_check(is_black)))
+                            {
+                                reset_position();
+                                return true;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
                 }
-                if (!is_black)
+
+                else
                 {
-                    if (!(islower(board[moved_y][moved_x])))
+                    if (!(isalpha(board[moved_y][moved_x])))
                     {
                         board[moved_y][moved_x] = 'b';
                         set_square_color(y1, x1);
@@ -98,8 +119,28 @@ bool bishop_has_legal_move(int y1, int x1, bool is_black)
                         }
                         else
                         {
-                            reset_position();
                             continue;
+                        }
+                    }
+                    else
+                    {
+                        if (islower(board[moved_y][moved_x]))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            board[moved_y][moved_x] = 'b';
+                            set_square_color(y1, x1);
+                            if (!(is_in_check(is_black)))
+                            {
+                                reset_position();
+                                return true;
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
                 }

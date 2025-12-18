@@ -96,10 +96,11 @@ bool pawn_has_legal_move(int y1, int x1, bool is_black)
             reset_position();
         }
     }
-    else
+    if (1)
     {
         int y_check = is_black ? y1 - 2 : y1 + 2;
-        if ((y1 == 1 && !is_black && (isalpha(board[y_check][x1]))) || (y1 == 5 && is_black && (isalpha(board[y_check][x1]))))
+        int y_check2 = is_black ? y1 - 1 : y1 + 1;
+        if ((y1 == 1 && !is_black && !(isalpha(board[y_check][x1])) && !isalpha(board[y_check2][x1])) || (y1 == 6 && is_black && !(isalpha(board[y_check][x1])) && !isalpha(board[y_check2][x1])))
         {
             board[y_check][x1] = is_black ? 'P' : 'p';
             set_square_color(y1, x1);
@@ -116,7 +117,7 @@ bool pawn_has_legal_move(int y1, int x1, bool is_black)
     }
     if (!is_black)
     {
-        if (!islower(board[y1 + 1][x1 - 1]))
+        if (isupper(board[y1 + 1][x1 - 1]))
         {
             board[y1 + 1][x1 - 1] = 'p';
             set_square_color(y1, x1);
@@ -130,7 +131,7 @@ bool pawn_has_legal_move(int y1, int x1, bool is_black)
                 reset_position();
             }
         }
-        else if (!islower(board[y1 + 1][x1 + 1]))
+        if (isupper(board[y1 + 1][x1 + 1]))
         {
             board[y1 + 1][x1 + 1] = 'p';
             set_square_color(y1, x1);
@@ -147,7 +148,7 @@ bool pawn_has_legal_move(int y1, int x1, bool is_black)
     }
     else
     {
-        if (!isupper(board[y1 - 1][x1 - 1]))
+        if (islower(board[y1 - 1][x1 - 1]))
         {
             board[y1 - 1][x1 - 1] = 'P';
             set_square_color(y1, x1);
@@ -161,7 +162,7 @@ bool pawn_has_legal_move(int y1, int x1, bool is_black)
                 reset_position();
             }
         }
-        else if (!islower(board[y1 - 1][x1 + 1]))
+        if (islower(board[y1 - 1][x1 + 1]))
         {
             board[y1 - 1][x1 + 1] = 'P';
             set_square_color(y1, x1);
