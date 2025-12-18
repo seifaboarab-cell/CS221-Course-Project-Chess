@@ -22,7 +22,7 @@ bool a_rook_moved[2] = {false, false};
 bool h_rook_moved[2] = {false, false};
 int en_passant_flags[2][8] = {{-1, -1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1, -1}};
 
-int half_turn = 0;
+int half_turn = -1;
 int turn = 1;
 int player_number = 0;
 
@@ -43,6 +43,7 @@ typedef struct Position
 } Position;
 
 Position *current_position = NULL;
+Position *redo_stack = NULL;
 
 void display_board()
 {
@@ -172,6 +173,13 @@ bool is_in_check(bool is_black)
     return false;
 }
 
+void free_stack(Position *p){
+    if (p == NULL)
+        return;
+    free_stack(p->previous_position);
+    free(p);
+}
+
 bool commit_position()
 {
     Position *temp = malloc(sizeof(Position));
@@ -197,10 +205,13 @@ bool commit_position()
         for (int j = 0; j < num_capture[i]; j++)
             current_position->capture[i][j] = capture[i][j];
     }
+    half_turn++;
     current_position->half_turn = half_turn;
     current_position->turn = turn;
     current_position->player_number = player_number;
-    return true;
+    free_stack(redo_stack);
+    redo_stack = NULL;
+    return true;  
 }
 
 void reset_position()
@@ -223,4 +234,33 @@ void reset_position()
         for (int j = 0; j < num_capture[i]; j++)
             capture[i][j] = current_position->capture[i][j];
     }
+    half_turn = current_position->half_turn;
+}
+
+bool undo(){
+    if (current_position->previous_position == NULL)
+        return false;
+    Position *temp = current_position;
+    current_position = temp->previous_position;
+    temp->previous_position = redo_stack;
+    redo_stack = temp;
+    reset_position();
+    return true;
+}
+bool redo(){
+    if (redo_stack == NULL)
+        return false;
+    Position *temp = redo_stack;
+    redo_stack = temp->previous_position;
+    temp->previous_position = current_position;
+    current_position = temp;
+    reset_position();
+    return true;
+}
+
+void free_game(){
+    free_stack(current_position);
+    current_position = NULL;
+    free_stack(redo_stack);
+    redo_stack = NULL;
 }

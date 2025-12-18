@@ -35,7 +35,7 @@ bool can_move_pawn(int y1, int x1, int y2, int x2, bool is_black, char promotion
     {
         return true;
     }
-    else if ((y2 - y1 == -1) && is_black && (abs(x2 - x1) == 1) & isalpha(board[y2][x2]))
+    else if ((y2 - y1 == -1) && is_black && (abs(x2 - x1) == 1) && isalpha(board[y2][x2]))
     {
         return true;
     }

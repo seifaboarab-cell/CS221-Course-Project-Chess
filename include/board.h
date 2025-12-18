@@ -26,4 +26,10 @@ bool commit_position();
 
 void reset_position();
 
+bool undo();
+
+bool redo();
+
+void free_game();
+
 #endif

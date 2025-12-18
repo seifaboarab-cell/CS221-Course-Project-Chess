@@ -5,16 +5,19 @@
 #include "pawn.h"
 #include "queen.h"
 #include "rook.h"
-#define size 10
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+
+#define MAX_INPUT_SIZE 5
 
 bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece);
 // Note: Parameters are ordered as (y, x) because the board is accessed as board[y][x].
 // We should keep this ordering consistent throughout the code.
-char *read_input(void);
 bool has_legal_move(bool is_black);
+bool read_input(char s[]);
+
 int main()
 {
     char *players[] = {"White", "Black"};
@@ -24,23 +27,54 @@ int main()
         turn = half_turn / 2 + 1;
         player_number = half_turn % 2;
         display_board();
-        bool in_check = is_in_check(player_number);
+        bool in_check = is_in_check(player_number), can_move = has_legal_move(player_number);
+        // if (!can_move)
+        // {
+        //     if(in_check)
+        //         printf("Checkmate!\n%s won.", players[!player_number]);
+        //     else
+        //         printf("Draw by stalemate.\n");
+        //     free_game();
+        //     return 0;
+        // }
         if (in_check)
             printf("Check!\n");
-        printf("%d-%s: ", turn, players[player_number]);
-        char *input = read_input();
-        int len = strlen(input);
-        if (len > 5 || len < 4)
-        {
-            printf("invalid input\nplease : enter your move again\n");
-            continue;
-        }
-        int x1 = toupper(input[0]) - 'A', y1 = input[1] - '1', x2 = toupper(input[2]) - 'A', y2 = input[3] - '1';
-        if (!move(y1, x1, y2, x2, player_number, input[4]))
-            continue;
+        printf("%d-%s: ", turn, players[player_number]);        
+        char input[MAX_INPUT_SIZE + 1] = "";
 
-        half_turn++;
+        if (!read_input(input))
+        {
+            printf("Invalid input!\n");
+        }
+        else if (!strcmp(input, "undo") || !strcmp(input, "u"))
+        {
+            if (!undo())
+                printf("Undo is not available right now.\n");
+
+        }else if (!strcmp(input, "redo") || !strcmp(input, "r"))
+        {
+            if (!redo())
+                printf("Redo is not available right now.\n");    
+        }else if (!strcmp(input, "quit") || !strcmp(input, "q"))
+        {
+            //TODO
+            break;
+        }else if (strlen(input) < 4)
+        {
+            printf("Invalid input!\n");
+        }else
+        {
+            int x1 = input[0] - 'a', y1 = input[1] - '1', x2 = input[2] - 'a', y2 = input[3] - '1';
+            if(!move(y1, x1, y2, x2, player_number, input[4])){
+                // I changed move() function to make it return flase only when memory allocation fails.
+                // Otherwise it will return true and commit the move if it's legal or else reset the position.
+                printf("ERROR: failed to allocate memory\n");
+                free_game();
+                return 1;
+            }  
+        }
     }
+    free_game();
     return 0;
 }
 
@@ -49,22 +83,22 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
     if (x1 > 7 || x1 < 0 || x2 > 7 || x2 < 0 || y1 > 7 || y1 < 0 || y2 > 7 || y2 < 0)
     {
         printf("Invalid input!\n");
-        return false;
+        return true;
     }
     if ((!islower(board[y1][x1]) && !is_black) || (!isupper(board[y1][x1]) && is_black))
     {
         printf("You don't have a piece on this square.\n");
-        return false;
+        return true;
     }
     if ((islower(board[y2][x2]) && !is_black) || (isupper(board[y2][x2]) && is_black))
     {
         printf("You cannot capture one of your own pieces.\n");
-        return false;
+        return true;
     }
     if (promotion_piece != '\0' && tolower(board[y1][x1]) != 'p')
     {
         printf("Illegal move!\n");
-        return false;
+        return true;;
     }
     bool can_move = true;
     switch (board[y1][x1])
@@ -77,7 +111,8 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
             // the move on the board and verify that the king is not left in check
             // and if the king is in check, they reset the position.
             // That is why, if they return true, the function can return true directly.
-            commit_position();
+            if(!commit_position())
+                return false;
             return true;
         }
         can_move = can_move_king(y1, x1, y2, x2);
@@ -119,7 +154,8 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
             // the move on the board and verify that the king is not left in check
             // and if the king is in check, they reset the position.
             // That is why, if they return true, the function can return true directly.
-            commit_position();
+            if(!commit_position())
+                return false;
             return true;
         }
         can_move = can_move_pawn(y1, x1, y2, x2, is_black, promotion_piece);
@@ -128,7 +164,7 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
     if (!can_move)
     {
         printf("Illegal move!\n");
-        return false;
+        return true;
     }
     if (isalpha(board[y2][x2]))
         capture[!is_black][num_capture[!is_black]++] = board[y2][x2];
@@ -139,49 +175,11 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
     {
         printf("Illegal move: you cannot move your king into check or leave him in check.\n");
         reset_position();
+        return true;
+    }
+    if(!commit_position())
         return false;
-    }
-    commit_position();
     return true;
-}
-char *read_input(void)
-{
-    char buffer[10];
-    char *full_input = NULL;
-    int full_size = 0;
-    while (1)
-    {
-        if (fgets(buffer, size, stdin) == NULL)
-        { // read input and if no thing reading break the loop
-            break;
-        }
-        int current_input = strlen(buffer);
-        char *temp = (char *)realloc(full_input, full_size + current_input + 1);
-        if (temp == NULL)
-        {
-            printf("failed realloc");
-            free(full_input);
-        }
-        full_input = temp;
-        if (full_size == 0)
-        {
-            strcpy(full_input, buffer);
-        }
-        else
-        {
-            strcat(full_input, buffer);
-        }
-        full_size += current_input;
-        if (current_input < size - 1 || buffer[current_input - 1] == '\n')
-        {
-            break;
-        }
-    }
-    if (full_input[full_size - 1] = '\n' && full_size > 0)
-    {
-        full_input[full_size - 1] = '\0';
-    }
-    return full_input;
 }
 
 bool has_legal_move(bool is_black)
@@ -197,28 +195,28 @@ bool has_legal_move(bool is_black)
                 {
                 case 'k':
                 case 'K':
-                    has_legal_move = king_has_legal_move(i, j, is_black);
+                    //has_legal_move = king_has_legal_move(i, j, is_black);
                     break;
                 case 'q':
                 case 'Q':
-                    has_legal_move = queen_has_legal_move(i, j, is_black);
+                    //has_legal_move = queen_has_legal_move(i, j, is_black);
                     break;
                 case 'r':
                 case 'R':
-                    has_legal_move = rook_has_legal_move(i, j, is_black);
+                    //has_legal_move = rook_has_legal_move(i, j, is_black);
 
                     break;
                 case 'b':
                 case 'B':
-                    has_legal_move = bishop_has_legal_move(i, j, is_black);
+                    //has_legal_move = bishop_has_legal_move(i, j, is_black);
                     break;
                 case 'n':
                 case 'N':
-                    has_legal_move = knight_has_legal_move(i, j, is_black);
+                    //has_legal_move = knight_has_legal_move(i, j, is_black);
                     break;
                 case 'p':
                 case 'P':
-                    has_legal_move = pawn_has_legal_move(i, j, is_black);
+                    //has_legal_move = pawn_has_legal_move(i, j, is_black);
                     break;
                 }
             }
@@ -229,4 +227,20 @@ bool has_legal_move(bool is_black)
         }
     }
     return false;
+}
+
+bool read_input(char s[])
+{
+    int c = getchar(), i = 0;
+    bool valid = true;
+    while (c !='\n' && c != EOF)
+    {
+        if(i < MAX_INPUT_SIZE)
+            s[i++] = tolower((unsigned char) c);
+        else
+            valid = false;
+        c = getchar();
+    }
+    s[i] = '\0';
+    return valid;
 }

@@ -2,7 +2,7 @@
 
 CC = gcc
 
-FLAGS = -Wall -Wextra -Iinclude 
+FLAGS = -Wall -Wextra -Iinclude -g
 
 OBJ = ./build/main.o ./build/board.o ./build/king.o ./build/queen.o ./build/rook.o ./build/bishop.o ./build/knight.o ./build/pawn.o
 
