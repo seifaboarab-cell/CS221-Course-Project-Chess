@@ -7,14 +7,14 @@
 char board[8][8] = {
     {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
     {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-    {'-', ' ', '-', ' ', '-', ' ', '-', ' '},
-    {' ', '-', ' ', '-', ' ', '-', ' ', '-'},
-    {'-', ' ', '-', ' ', '-', ' ', '-', ' '},
-    {' ', '-', ' ', '-', ' ', '-', ' ', '-'},
+    {'-', '.', '-', '.', '-', '.', '-', '.'},
+    {'.', '-', '.', '-', '.', '-', '.', '-'},
+    {'-', '.', '-', '.', '-', '.', '-', '.'},
+    {'.', '-', '.', '-', '.', '-', '.', '-'},
     {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
     {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
 };
-char capture[2][15];
+char capture[2][15] = {{'.', '.', '.', '.', '.', '.', '.', '.'}, {'-', '-', '-', '-', '-', '-', '-', '-'}};
 int num_capture[2] = {0, 0};
 int king_location[2][2] = {{0, 4}, {7, 4}};
 bool king_moved[2] = {false, false};
@@ -173,7 +173,8 @@ bool is_in_check(bool is_black)
     return false;
 }
 
-void free_stack(Position *p){
+void free_stack(Position *p)
+{
     if (p == NULL)
         return;
     free_stack(p->previous_position);
@@ -211,7 +212,7 @@ bool commit_position()
     current_position->player_number = player_number;
     free_stack(redo_stack);
     redo_stack = NULL;
-    return true;  
+    return true;
 }
 
 void reset_position()
@@ -237,7 +238,8 @@ void reset_position()
     half_turn = current_position->half_turn;
 }
 
-bool undo(){
+bool undo()
+{
     if (current_position->previous_position == NULL)
         return false;
     Position *temp = current_position;
@@ -247,7 +249,8 @@ bool undo(){
     reset_position();
     return true;
 }
-bool redo(){
+bool redo()
+{
     if (redo_stack == NULL)
         return false;
     Position *temp = redo_stack;
@@ -258,7 +261,8 @@ bool redo(){
     return true;
 }
 
-void free_game(){
+void free_game()
+{
     free_stack(current_position);
     current_position = NULL;
     free_stack(redo_stack);
