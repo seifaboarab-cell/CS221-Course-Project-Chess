@@ -11,12 +11,15 @@
 #include <string.h>
 
 #define MAX_INPUT_SIZE 5
+#define size 10
 
 bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece);
 // Note: Parameters are ordered as (y, x) because the board is accessed as board[y][x].
 // We should keep this ordering consistent throughout the code.
 bool has_legal_move(bool is_black);
 bool read_input(char s[]);
+void save_game();
+void laod_game();
 
 int main()
 {
@@ -39,7 +42,7 @@ int main()
         // }
         if (in_check)
             printf("Check!\n");
-        printf("%d-%s: ", turn, players[player_number]);        
+        printf("%d-%s: ", turn, players[player_number]);
         char input[MAX_INPUT_SIZE + 1] = "";
 
         if (!read_input(input))
@@ -50,28 +53,40 @@ int main()
         {
             if (!undo())
                 printf("Undo is not available right now.\n");
-
-        }else if (!strcmp(input, "redo") || !strcmp(input, "r"))
+        }
+        else if (!strcmp(input, "redo") || !strcmp(input, "r"))
         {
             if (!redo())
-                printf("Redo is not available right now.\n");    
-        }else if (!strcmp(input, "quit") || !strcmp(input, "q"))
+                printf("Redo is not available right now.\n");
+        }
+        else if (!strcmp(input, "quit") || !strcmp(input, "q"))
         {
-            //TODO
+            // TODO
             break;
-        }else if (strlen(input) < 4)
+        }
+        else if (strlen(input) < 4)
         {
             printf("Invalid input!\n");
-        }else
+        }
+        else if (!strcmp(input, "save"))
+        {
+            save_game();
+        }
+        else if (!strcmp(input, "load"))
+        {
+            load_game();
+        }
+        else
         {
             int x1 = input[0] - 'a', y1 = input[1] - '1', x2 = input[2] - 'a', y2 = input[3] - '1';
-            if(!move(y1, x1, y2, x2, player_number, input[4])){
+            if (!move(y1, x1, y2, x2, player_number, input[4]))
+            {
                 // I changed move() function to make it return flase only when memory allocation fails.
                 // Otherwise it will return true and commit the move if it's legal or else reset the position.
                 printf("ERROR: failed to allocate memory\n");
                 free_game();
                 return 1;
-            }  
+            }
         }
     }
     free_game();
@@ -98,7 +113,8 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
     if (promotion_piece != '\0' && tolower(board[y1][x1]) != 'p')
     {
         printf("Illegal move!\n");
-        return true;;
+        return true;
+        ;
     }
     bool can_move = true;
     switch (board[y1][x1])
@@ -111,7 +127,7 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
             // the move on the board and verify that the king is not left in check
             // and if the king is in check, they reset the position.
             // That is why, if they return true, the function can return true directly.
-            if(!commit_position())
+            if (!commit_position())
                 return false;
             return true;
         }
@@ -154,7 +170,7 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
             // the move on the board and verify that the king is not left in check
             // and if the king is in check, they reset the position.
             // That is why, if they return true, the function can return true directly.
-            if(!commit_position())
+            if (!commit_position())
                 return false;
             return true;
         }
@@ -177,7 +193,7 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
         reset_position();
         return true;
     }
-    if(!commit_position())
+    if (!commit_position())
         return false;
     return true;
 }
@@ -195,28 +211,28 @@ bool has_legal_move(bool is_black)
                 {
                 case 'k':
                 case 'K':
-                    //has_legal_move = king_has_legal_move(i, j, is_black);
+                    // has_legal_move = king_has_legal_move(i, j, is_black);
                     break;
                 case 'q':
                 case 'Q':
-                    //has_legal_move = queen_has_legal_move(i, j, is_black);
+                    // has_legal_move = queen_has_legal_move(i, j, is_black);
                     break;
                 case 'r':
                 case 'R':
-                    //has_legal_move = rook_has_legal_move(i, j, is_black);
+                    // has_legal_move = rook_has_legal_move(i, j, is_black);
 
                     break;
                 case 'b':
                 case 'B':
-                    //has_legal_move = bishop_has_legal_move(i, j, is_black);
+                    // has_legal_move = bishop_has_legal_move(i, j, is_black);
                     break;
                 case 'n':
                 case 'N':
-                    //has_legal_move = knight_has_legal_move(i, j, is_black);
+                    // has_legal_move = knight_has_legal_move(i, j, is_black);
                     break;
                 case 'p':
                 case 'P':
-                    //has_legal_move = pawn_has_legal_move(i, j, is_black);
+                    // has_legal_move = pawn_has_legal_move(i, j, is_black);
                     break;
                 }
             }
@@ -233,14 +249,102 @@ bool read_input(char s[])
 {
     int c = getchar(), i = 0;
     bool valid = true;
-    while (c !='\n' && c != EOF)
+    while (c != '\n' && c != EOF)
     {
-        if(i < MAX_INPUT_SIZE)
-            s[i++] = tolower((unsigned char) c);
+        if (i < MAX_INPUT_SIZE)
+            s[i++] = tolower((unsigned char)c);
         else
             valid = false;
         c = getchar();
     }
     s[i] = '\0';
     return valid;
+}
+
+void save_game()
+{
+
+    FILE *file_ptr = fopen("save_game.txt", "w");
+    if (file_ptr == NULL)
+    {
+        perror("failed to save file");
+    }
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            fprintf(file_ptr, "%c", board[i][j]);
+        }
+        fprintf(file_ptr, "\n");
+    }
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 15; j++)
+        {
+            fprintf(file_ptr, "%c", capture[i][j]);
+        }
+        fprintf(file_ptr, "\n");
+    }
+    fprintf(file_ptr, "%d %d\n", num_capture[0], num_capture[1]);
+    for (int i = 0; i < 2; i++)
+    {
+        fprintf(file_ptr, "%d %d", king_location[i][0], king_location[i][1]);
+        fprintf(file_ptr, "\n");
+    }
+    fprintf(file_ptr, "%d %d\n", king_moved[0], king_moved[1]);
+    fprintf(file_ptr, "%d %d\n", a_rook_moved[0], a_rook_moved[1]);
+    fprintf(file_ptr, "%d %d\n", h_rook_moved[0], h_rook_moved[1]);
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            fprintf(file_ptr, "%d ", en_passant_flags[i][j]);
+        }
+        fprintf(file_ptr, "\n");
+    }
+    fprintf(file_ptr, "%d %d %d\n", half_turn, turn, player_number);
+    fclose(file_ptr);
+}
+
+void load_game()
+{
+
+    FILE *file_ptr = fopen("save_game.txt", "r");
+    if (file_ptr == NULL)
+    {
+        perror("there is not file with this name");
+    }
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+
+            fscanf(file_ptr, " %c", &board[i][j]);
+        }
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 15; j++)
+        {
+            fscanf(file_ptr, " %c", &capture[i][j]);
+        }
+    }
+    fscanf(file_ptr, "%d %d", &num_capture[0], &num_capture[1]);
+    for (int i = 0; i < 2; i++)
+    {
+        fscanf(file_ptr, "%d %d", &king_location[i][0], &king_location[i][1]);
+    }
+    fscanf(file_ptr, "%d %d", &king_moved[0], &king_moved[1]);
+    fscanf(file_ptr, "%d %d", &a_rook_moved[0], &a_rook_moved[1]);
+    fscanf(file_ptr, "%d %d", &h_rook_moved[0], &h_rook_moved[1]);
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            fscanf(file_ptr, "%d ", &en_passant_flags[i][j]);
+        }
+    }
+    fscanf(file_ptr, "%d %d %d\n", &half_turn, &turn, &player_number);
+    fclose(file_ptr);
 }
