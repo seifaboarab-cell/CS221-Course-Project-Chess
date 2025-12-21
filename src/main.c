@@ -10,40 +10,52 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_INPUT_SIZE 5
-#define size 10
+#define MAX_INPUT_SIZE 10
 
 bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece);
 // Note: Parameters are ordered as (y, x) because the board is accessed as board[y][x].
 // We should keep this ordering consistent throughout the code.
 bool has_legal_move(bool is_black);
 bool read_input(char s[]);
-void save_game();
-void laod_game();
+int save_game();
+void load_game(char index[]);
 
 int main()
 {
     char *players[] = {"White", "Black"};
-    commit_position();
+    char input[MAX_INPUT_SIZE + 1] = "";
+    printf("Load a saved game or start a new one? (load/new)\n");
+    if (read_input(input)){
+        if (!strcmp(input, "load") || !strcmp(input, "l")){
+            printf("Enter the game number: ");
+            read_input(input);
+            load_game(input);
+        }
+    }
+    if (!commit_position()){
+        printf("ERROR: failed to allocate memory\n");
+        free_game();
+        return 1;
+    }
     for (;;)
     {
         turn = half_turn / 2 + 1;
         player_number = half_turn % 2;
         display_board();
-        bool in_check = is_in_check(player_number), can_move = has_legal_move(player_number);
-        // if (!can_move)
-        // {
-        //     if(in_check)
-        //         printf("Checkmate!\n%s won.", players[!player_number]);
-        //     else
-        //         printf("Draw by stalemate.\n");
-        //     free_game();
-        //     return 0;
-        // }
+        bool in_check = is_in_check(player_number);
+        bool can_move = has_legal_move(player_number);
+        if (!can_move)
+        {
+            if(in_check)
+                printf("Checkmate!\n%s won.", players[!player_number]);
+            else
+                printf("Draw by stalemate.\n");
+            free_game();
+            return 0;
+        }
         if (in_check)
             printf("Check!\n");
         printf("%d-%s: ", turn, players[player_number]);
-        char input[MAX_INPUT_SIZE + 1] = "";
 
         if (!read_input(input))
         {
@@ -61,20 +73,16 @@ int main()
         }
         else if (!strcmp(input, "quit") || !strcmp(input, "q"))
         {
-            // TODO
+            int index = save_game();
+            if (index == -1)
+                printf("Could not save your game.\n");
+            else
+                printf("Your game number is: %d\n", index);
             break;
         }
-        else if (strlen(input) < 4)
+        else if (strlen(input) < 4 || strlen(input) > 5)
         {
             printf("Invalid input!\n");
-        }
-        else if (!strcmp(input, "save"))
-        {
-            save_game();
-        }
-        else if (!strcmp(input, "load"))
-        {
-            load_game();
         }
         else
         {
@@ -211,28 +219,28 @@ bool has_legal_move(bool is_black)
                 {
                 case 'k':
                 case 'K':
-                    // has_legal_move = king_has_legal_move(i, j, is_black);
+                    has_legal_move = king_has_legal_move(i, j, is_black);
                     break;
                 case 'q':
                 case 'Q':
-                    // has_legal_move = queen_has_legal_move(i, j, is_black);
+                    has_legal_move = queen_has_legal_move(i, j, is_black);
                     break;
                 case 'r':
                 case 'R':
-                    // has_legal_move = rook_has_legal_move(i, j, is_black);
+                    has_legal_move = rook_has_legal_move(i, j, is_black);
 
                     break;
                 case 'b':
                 case 'B':
-                    // has_legal_move = bishop_has_legal_move(i, j, is_black);
+                    has_legal_move = bishop_has_legal_move(i, j, is_black);
                     break;
                 case 'n':
                 case 'N':
-                    // has_legal_move = knight_has_legal_move(i, j, is_black);
+                    has_legal_move = knight_has_legal_move(i, j, is_black);
                     break;
                 case 'p':
                 case 'P':
-                    // has_legal_move = pawn_has_legal_move(i, j, is_black);
+                    has_legal_move = pawn_has_legal_move(i, j, is_black);
                     break;
                 }
             }
@@ -261,13 +269,26 @@ bool read_input(char s[])
     return valid;
 }
 
-void save_game()
+int save_game()
 {
+    FILE *index_file = fopen("saves/Index", "r");
+    if(index_file == NULL)
+    {
+        perror("failed to save file");
+        return -1;
+    }
+    int index = 0;
+    fread(&index, sizeof(int), 1, index_file);
+    fclose(index_file);
 
-    FILE *file_ptr = fopen("save_game.txt", "w");
+    char file_name[20];
+    sprintf(file_name, "saves/%d.txt", index);
+    FILE *file_ptr = fopen(file_name, "w");
+
     if (file_ptr == NULL)
     {
         perror("failed to save file");
+        return -1;
     }
     for (int i = 0; i < 8; i++)
     {
@@ -302,17 +323,29 @@ void save_game()
         }
         fprintf(file_ptr, "\n");
     }
-    fprintf(file_ptr, "%d %d %d\n", half_turn, turn, player_number);
+    fprintf(file_ptr, "%d\n", half_turn - 1);
     fclose(file_ptr);
+    index++;
+    index_file = fopen("saves/Index", "w");
+    if(index_file == NULL)
+    {
+        perror("failed to save file");
+        return -1;
+    }
+    fwrite(&index, sizeof(int), 1, index_file);
+    fclose(index_file);
+    return index - 1;
 }
 
-void load_game()
+void load_game(char index[])
 {
-
-    FILE *file_ptr = fopen("save_game.txt", "r");
+    char file_name[20];
+    sprintf(file_name, "saves/%s.txt", index);
+    FILE *file_ptr = fopen(file_name, "r");
     if (file_ptr == NULL)
     {
         perror("there is not file with this name");
+        return;
     }
     for (int i = 0; i < 8; i++)
     {
@@ -345,6 +378,6 @@ void load_game()
             fscanf(file_ptr, "%d ", &en_passant_flags[i][j]);
         }
     }
-    fscanf(file_ptr, "%d %d %d\n", &half_turn, &turn, &player_number);
+    fscanf(file_ptr, "%d\n", &half_turn);
     fclose(file_ptr);
 }
