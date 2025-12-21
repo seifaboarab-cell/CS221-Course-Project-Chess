@@ -45,7 +45,7 @@ typedef struct Position
 Position *current_position = NULL;
 Position *redo_stack = NULL;
 
-bool display_board(bool is_black)
+display_board(bool is_black)
 {
     int i, j, k;
     if (is_black)
