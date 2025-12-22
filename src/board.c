@@ -51,7 +51,7 @@ void display_board(bool is_black)
     if (is_black)
     {
         printf("captured black piece {");
-        for (int z = 0; z < num_capture[0]; z++)
+        for (int z = 0; z < num_capture[is_black]; z++)
         {
             printf(" %c ,", capture[is_black][z]);
         }
@@ -59,7 +59,7 @@ void display_board(bool is_black)
     else
     {
         printf("captured white piece {");
-        for (int z = 0; z < num_capture[0]; z++)
+        for (int z = 0; z < num_capture[is_black]; z++)
         {
             printf(" %c ,", capture[is_black][z]);
         }
@@ -142,18 +142,18 @@ void display_board(bool is_black)
     {
 
         printf("captured white piece {");
-        for (int z = 0; z < num_capture[0]; z++)
+        for (int z = 0; z < num_capture[!is_black]; z++)
         {
-            printf(" %c ,", capture[is_black][z]);
+            printf(" %c ,", capture[!is_black][z]);
         }
         printf("}\n\n");
     }
     else
     {
         printf("captured black piece {");
-        for (int z = 0; z < num_capture[0]; z++)
+        for (int z = 0; z < num_capture[!is_black]; z++)
         {
-            printf(" %c ,", capture[is_black][z]);
+            printf(" %c ,", capture[!is_black][z]);
         }
         printf("}\n\n");
     }

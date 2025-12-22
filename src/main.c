@@ -19,20 +19,24 @@ bool has_legal_move(bool is_black);
 bool read_input(char s[]);
 int save_game();
 void load_game(char index[]);
+bool Draw();
 
 int main()
 {
     char *players[] = {"White", "Black"};
     char input[MAX_INPUT_SIZE + 1] = "";
     printf("Load a saved game or start a new one? (load/new)\n");
-    if (read_input(input)){
-        if (!strcmp(input, "load") || !strcmp(input, "l")){
+    if (read_input(input))
+    {
+        if (!strcmp(input, "load") || !strcmp(input, "l"))
+        {
             printf("Enter the game number: ");
             read_input(input);
             load_game(input);
         }
     }
-    if (!commit_position()){
+    if (!commit_position())
+    {
         printf("ERROR: failed to allocate memory\n");
         free_game();
         return 1;
@@ -41,12 +45,12 @@ int main()
     {
         turn = half_turn / 2 + 1;
         player_number = half_turn % 2;
-        display_board();
+        display_board(player_number);
         bool in_check = is_in_check(player_number);
         bool can_move = has_legal_move(player_number);
         if (!can_move)
         {
-            if(in_check)
+            if (in_check)
                 printf("Checkmate!\n%s won.", players[!player_number]);
             else
                 printf("Draw by stalemate.\n");
@@ -272,7 +276,7 @@ bool read_input(char s[])
 int save_game()
 {
     FILE *index_file = fopen("saves/Index", "r");
-    if(index_file == NULL)
+    if (index_file == NULL)
     {
         perror("failed to save file");
         return -1;
@@ -327,7 +331,7 @@ int save_game()
     fclose(file_ptr);
     index++;
     index_file = fopen("saves/Index", "w");
-    if(index_file == NULL)
+    if (index_file == NULL)
     {
         perror("failed to save file");
         return -1;
@@ -380,4 +384,69 @@ void load_game(char index[])
     }
     fscanf(file_ptr, "%d\n", &half_turn);
     fclose(file_ptr);
+}
+bool Draw()
+{
+    int count_white = 0, count_black = 0;
+    int num_knights[2] = {0, 0};
+    int num_bishops[2] = {0, 0};
+    char color_square[10][2] = {{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}};
+    if (num_capture[0] == 15 && num_capture[1] == 15)
+    {
+        return true;
+    }
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            int k = (islower(board[i][j])) ? 0 : 1;
+            if (board[i][j] == 'r' || board[i][j] == 'R' || board[i][j] == 'q' || board[i][j] == 'Q' || board[i][j] == 'p' || board[i][j] == 'P')
+            {
+                return false;
+            }
+            else if (board[i][j] == 'b' || board[i][j] == 'B')
+            {
+                int l = (board[i][j] == 'b') ? num_bishops[0] : num_bishops[1];
+                num_bishops[k] += 1;
+                color_square[k][l] = ((i + j) % 2 == 0) ? '-' : '.';
+            }
+            else if (board[i][j] == 'n' || board[i][j] == 'N')
+            {
+                num_knights[k] += 1;
+            }
+        }
+    }
+    if ((num_knights[0] < 3 || (num_knights[1] < 3)) && num_bishops[0] == 0 && num_bishops[1] == 0)
+    {
+        return true;
+    }
+    else if ((num_bishops[0] > 0 || num_bishops[1] > 0) && num_knights[0] == 0 && num_knights[1] == 0)
+    {
+        bool different_square = false;
+        for (int w = 0; w < num_bishops[0] - 1; w++)
+        {
+            if (color_square[w] != color_square[w + 1])
+            {
+                different_square = true;
+                break;
+            }
+        }
+        for (int w = 0; w < num_bishops[1] - 1; w++)
+        {
+            if (color_square[w] != color_square[w + 1])
+            {
+                different_square = true;
+                break;
+            }
+        }
+        if (different_square)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    return false;
 }
