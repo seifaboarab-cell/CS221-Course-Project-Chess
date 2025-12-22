@@ -225,7 +225,7 @@ bool is_in_check(bool is_black)
         for (int j = 1; j < 8; j++)
         {
             int moved_y = y + bishop_moves[i][0] * j, moved_x = x + bishop_moves[i][1] * j;
-            if (moved_y < 0 || moved_y > 7 || moved_x < 0 || moved_x * j > 7)
+            if (moved_y < 0 || moved_y > 7 || moved_x < 0 || moved_x > 7)
                 break;
             if (board[moved_y][moved_x] == bishop || board[moved_y][moved_x] == queen)
                 return true;
