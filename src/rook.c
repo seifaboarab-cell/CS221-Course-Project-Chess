@@ -61,7 +61,7 @@ bool rook_has_legal_move(int y1, int x1, bool is_black)
     int rook_moves[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
     for (int i = 0; i < 4; i++)
     {
-        for (int j = 0; j < 8; j++)
+        for (int j = 1; j < 8; j++)
         {
             int moved_y = y1 + rook_moves[i][0] * j, moved_x = x1 + rook_moves[i][1] * j;
             if (moved_y >= 0 && moved_y < 8 && moved_x >= 0 && moved_x < 8)

@@ -21,7 +21,7 @@ bool king_moved[2] = {false, false};
 bool a_rook_moved[2] = {false, false};
 bool h_rook_moved[2] = {false, false};
 int en_passant_flags[2][8] = {{-1, -1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1, -1}};
-
+int draw_flag = -1;
 int half_turn = -1;
 int turn = 1;
 int player_number = 0;
@@ -36,6 +36,7 @@ typedef struct Position
     bool a_rook_moved[2];
     bool h_rook_moved[2];
     int en_passant_flags[2][8];
+    int draw_flag;
     int half_turn;
     int turn;
     int player_number;
@@ -268,7 +269,9 @@ bool commit_position()
         for (int j = 0; j < num_capture[i]; j++)
             current_position->capture[i][j] = capture[i][j];
     }
+    draw_flag++;
     half_turn++;
+    current_position->draw_flag = draw_flag;
     current_position->half_turn = half_turn;
     current_position->turn = turn;
     current_position->player_number = player_number;
@@ -297,6 +300,7 @@ void reset_position()
         for (int j = 0; j < num_capture[i]; j++)
             capture[i][j] = current_position->capture[i][j];
     }
+    draw_flag = current_position->draw_flag;
     half_turn = current_position->half_turn;
 }
 

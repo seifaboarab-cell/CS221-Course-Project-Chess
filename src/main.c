@@ -19,7 +19,7 @@ bool has_legal_move(bool is_black);
 bool read_input(char s[]);
 int save_game();
 void load_game(char index[]);
-bool Draw();
+bool draw();
 
 int main()
 {
@@ -53,9 +53,13 @@ int main()
             if (in_check)
                 printf("Checkmate!\n%s won.", players[!player_number]);
             else
-                printf("Draw by stalemate.\n");
-            free_game();
-            return 0;
+                printf("Draw!\n");
+            break;
+        }
+        if (draw())
+        {
+            printf("Draw!\n");
+            break;
         }
         if (in_check)
             printf("Check!\n");
@@ -182,11 +186,14 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
             // the move on the board and verify that the king is not left in check
             // and if the king is in check, they reset the position.
             // That is why, if they return true, the function can return true directly.
+            draw_flag = -1;
             if (!commit_position())
                 return false;
             return true;
         }
         can_move = can_move_pawn(y1, x1, y2, x2, is_black, promotion_piece);
+        if (can_move)
+            draw_flag = -1;
         break;
     }
     if (!can_move)
@@ -195,7 +202,10 @@ bool move(int y1, int x1, int y2, int x2, bool is_black, char promotion_piece)
         return true;
     }
     if (isalpha(board[y2][x2]))
+    {
         capture[!is_black][num_capture[!is_black]++] = board[y2][x2];
+        draw_flag = -1;
+    }
     board[y2][x2] = board[y1][x1];
     set_square_color(y1, x1);
 
@@ -327,7 +337,9 @@ int save_game()
         }
         fprintf(file_ptr, "\n");
     }
+    fprintf(file_ptr, "%d\n", draw_flag - 1);
     fprintf(file_ptr, "%d\n", half_turn - 1);
+    
     fclose(file_ptr);
     index++;
     index_file = fopen("saves/Index", "w");
@@ -382,15 +394,19 @@ void load_game(char index[])
             fscanf(file_ptr, "%d ", &en_passant_flags[i][j]);
         }
     }
-    fscanf(file_ptr, "%d\n", &half_turn);
+    fscanf(file_ptr, "%d", &draw_flag);
+    fscanf(file_ptr, "%d", &half_turn);
+    
     fclose(file_ptr);
 }
-bool Draw()
+bool draw()
 {
+    if (draw_flag >= 100)
+        return true;
     int count_white = 0, count_black = 0;
     int num_knights[2] = {0, 0};
     int num_bishops[2] = {0, 0};
-    char color_square[10][2] = {{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}};
+    char color_square[2][10] = {{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}};
     if (num_capture[0] == 15 && num_capture[1] == 15)
     {
         return true;
@@ -407,8 +423,9 @@ bool Draw()
             else if (board[i][j] == 'b' || board[i][j] == 'B')
             {
                 int l = (board[i][j] == 'b') ? num_bishops[0] : num_bishops[1];
-                num_bishops[k] += 1;
                 color_square[k][l] = ((i + j) % 2 == 0) ? '-' : '.';
+                num_bishops[k] += 1;
+                
             }
             else if (board[i][j] == 'n' || board[i][j] == 'N')
             {
@@ -416,7 +433,7 @@ bool Draw()
             }
         }
     }
-    if ((num_knights[0] < 3 || (num_knights[1] < 3)) && num_bishops[0] == 0 && num_bishops[1] == 0)
+    if ((num_knights[0] < 2 || (num_knights[1] < 2)) && num_bishops[0] == 0 && num_bishops[1] == 0)
     {
         return true;
     }
@@ -425,7 +442,7 @@ bool Draw()
         bool different_square = false;
         for (int w = 0; w < num_bishops[0] - 1; w++)
         {
-            if (color_square[w] != color_square[w + 1])
+            if (color_square[0][w] != color_square[0][w + 1])
             {
                 different_square = true;
                 break;
@@ -433,7 +450,7 @@ bool Draw()
         }
         for (int w = 0; w < num_bishops[1] - 1; w++)
         {
-            if (color_square[w] != color_square[w + 1])
+            if (color_square[1][w] != color_square[1][w + 1])
             {
                 different_square = true;
                 break;
