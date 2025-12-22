@@ -19,7 +19,7 @@ bool has_legal_move(bool is_black);
 bool read_input(char s[]);
 int save_game();
 void load_game(char index[]);
-bool checkmate_is_impossible();
+bool Draw();
 
 int main()
 {
@@ -385,74 +385,68 @@ void load_game(char index[])
     fscanf(file_ptr, "%d\n", &half_turn);
     fclose(file_ptr);
 }
-bool checkmate_is_possible()
+bool Draw()
 {
-    int num_of_bishop_knight_pawn[2][3] = {{2, 2, 8}, {2, 2, 8}}, ptr1 = 0, ptr2 = 0;
-    char color_square[2][2] = {{' ', ' '}, {' ', ' '}};
+    int count_white = 0, count_black = 0;
+    int num_knights[2] = {0, 0};
+    int num_bishops[2] = {0, 0};
+    char color_square[10][2] = {{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}};
     if (num_capture[0] == 15 && num_capture[1] == 15)
     {
-        return false;
+        return true;
     }
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 8; j++)
         {
-            char pointer = board[i][j];
-            if (pointer == 'b' || pointer == 'B')
+            int k = (islower(board[i][j])) ? 0 : 1;
+            if (board[i][j] == 'r' || board[i][j] == 'R' || board[i][j] == 'q' || board[i][j] == 'Q' || board[i][j] == 'p' || board[i][j] == 'P')
             {
-                int k = (pointer == 'b') ? 0 : 1;
-                int l = (pointer == 'b') ? ptr1 : ptr2;
-                (pointer == 'b') ? ptr1++ : ptr2++;
-                num_of_bishop_knight_pawn[k][0] -= 1;
-                if (j == 7)
-                {
-                    color_square[k][l] = board[i - 1][j];
-                }
-                else
-                {
-                    color_square[k][l] = board[i + 1][j];
-                }
+                return false;
             }
-            else if (pointer == 'n' || pointer == 'N')
+            else if (board[i][j] == 'b' || board[i][j] == 'B')
             {
-                int i = 'n' ? 0 : 1;
-                num_of_bishop_knight_pawn[i][1] -= 1;
+                int l = (board[i][j] == 'b') ? num_bishops[0] : num_bishops[1];
+                num_bishops[k] += 1;
+                color_square[k][l] = ((i + j) % 2 == 0) ? '-' : '.';
             }
-            else if (pointer == 'p' || pointer == 'P')
+            else if (board[i][j] == 'n' || board[i][j] == 'N')
             {
-                int i = 'p' ? 0 : 1;
-                num_of_bishop_knight_pawn[i][2] -= 1;
+                num_knights[k] += 1;
             }
         }
     }
-
-    if (num_capture[0] == 15 && num_capture[1] == 14 && num_of_bishop_knight_pawn[1][0] == 1)
+    if ((num_knights[0] < 3 || (num_knights[1] < 3)) && num_bishops[0] == 0 && num_bishops[1] == 0)
     {
-        return false;
+        return true;
     }
-    else if (num_capture[0] == 14 && num_capture[1] == 15 && num_of_bishop_knight_pawn[0][0] == 1)
+    else if ((num_bishops[0] > 0 || num_bishops[1] > 0) && num_knights[0] == 0 && num_knights[1] == 0)
     {
-        return false;
+        bool different_square = false;
+        for (int w = 0; w < num_bishops[0] - 1; w++)
+        {
+            if (color_square[w] != color_square[w + 1])
+            {
+                different_square = true;
+                break;
+            }
+        }
+        for (int w = 0; w < num_bishops[1] - 1; w++)
+        {
+            if (color_square[w] != color_square[w + 1])
+            {
+                different_square = true;
+                break;
+            }
+        }
+        if (different_square)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
-    else if (num_capture[0] == 15 && num_capture[1] == 14 && num_of_bishop_knight_pawn[1][1] == 1)
-    {
-        return false;
-    }
-    else if (num_capture[0] == 14 && num_capture[1] == 15 && num_of_bishop_knight_pawn[0][1] == 1)
-    {
-        return false;
-    }
-    else if (num_of_bishop_knight_pawn[0][2] != 0 || num_of_bishop_knight_pawn[1][2] != 0)
-    {
-        return false;
-    }
-    else if (num_capture[0] == 13 && num_capture[1] == 15 && num_of_bishop_knight_pawn[0][0] == 2 && color_square[0][0] == color_square[0][1])
-    {
-        return false;
-    }
-    else if (num_capture[0] == 15 && num_capture[1] == 13 && num_of_bishop_knight_pawn[1][0] == 2 && color_square[1][0] == color_square[1][1])
-    {
-        return false;
-    }
-    return true;
+    return false;
 }
