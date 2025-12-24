@@ -80,6 +80,7 @@ bool bishop_has_legal_move(int y1, int x1, bool is_black)
                         }
                         else
                         {
+                            reset_position();
                             continue;
                         }
                     }
@@ -100,6 +101,7 @@ bool bishop_has_legal_move(int y1, int x1, bool is_black)
                             }
                             else
                             {
+                                reset_position();
                                 break;
                             }
                         }
@@ -119,6 +121,7 @@ bool bishop_has_legal_move(int y1, int x1, bool is_black)
                         }
                         else
                         {
+                            reset_position();
                             continue;
                         }
                     }
@@ -139,6 +142,7 @@ bool bishop_has_legal_move(int y1, int x1, bool is_black)
                             }
                             else
                             {
+                                reset_position();
                                 break;
                             }
                         }
