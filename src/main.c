@@ -37,7 +37,7 @@ int main()
     }
     if (!commit_position())
     {
-        printf("ERROR: failed to allocate memory\n");
+        printf("ERROR: failed to allocate memory\n\n");
         free_game();
         return 1;
     }
@@ -51,19 +51,19 @@ int main()
         if (!can_move)
         {
             if (in_check)
-                printf("Checkmate!\n%s won.", players[!player_number]);
+                printf("\n\nCheckmate!\n%s won.\n\n", players[!player_number]);
             else
-                printf("Draw!\n");
+                printf("\n\nDraw!\n\n");
             break;
         }
         if (draw())
         {
-            printf("Draw!\n");
+            printf("\n\nDraw!\n\n");
             break;
         }
         if (in_check)
             printf("Check!\n");
-        printf("%d-%s: ", turn, players[player_number]);
+        printf("\n\n%d-%s: ", turn, players[player_number]);
 
         if (!read_input(input))
         {
@@ -85,7 +85,7 @@ int main()
             if (index == -1)
                 printf("Could not save your game.\n");
             else
-                printf("Your game number is: %d\n", index);
+                printf("Your game number is: %d\n\n", index);
             break;
         }
         else if (strlen(input) < 4 || strlen(input) > 5)
@@ -99,7 +99,7 @@ int main()
             {
                 // I changed move() function to make it return flase only when memory allocation fails.
                 // Otherwise it will return true and commit the move if it's legal or else reset the position.
-                printf("ERROR: failed to allocate memory\n");
+                printf("ERROR: failed to allocate memory\n\n");
                 free_game();
                 return 1;
             }
@@ -326,9 +326,9 @@ int save_game()
         fprintf(file_ptr, "%d %d", king_location[i][0], king_location[i][1]);
         fprintf(file_ptr, "\n");
     }
-    fprintf(file_ptr, "%d %d\n", king_moved[0], king_moved[1]);
-    fprintf(file_ptr, "%d %d\n", a_rook_moved[0], a_rook_moved[1]);
-    fprintf(file_ptr, "%d %d\n", h_rook_moved[0], h_rook_moved[1]);
+    fprintf(file_ptr, "%d %d\n", (int)king_moved[0], (int)king_moved[1]);
+    fprintf(file_ptr, "%d %d\n", (int)a_rook_moved[0], (int)a_rook_moved[1]);
+    fprintf(file_ptr, "%d %d\n", (int)h_rook_moved[0], (int)h_rook_moved[1]);
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < 8; j++)
@@ -337,9 +337,8 @@ int save_game()
         }
         fprintf(file_ptr, "\n");
     }
-    fprintf(file_ptr, "%d\n", draw_flag - 1);
     fprintf(file_ptr, "%d\n", half_turn - 1);
-    
+    fprintf(file_ptr, "%d\n", draw_flag - 1);
     fclose(file_ptr);
     index++;
     index_file = fopen("saves/Index", "w");
@@ -394,16 +393,15 @@ void load_game(char index[])
             fscanf(file_ptr, "%d ", &en_passant_flags[i][j]);
         }
     }
-    fscanf(file_ptr, "%d", &draw_flag);
-    fscanf(file_ptr, "%d", &half_turn);
-    
+    fscanf(file_ptr, "%d\n", &half_turn);
+    fscanf(file_ptr, "%d\n", &draw_flag);
     fclose(file_ptr);
 }
 bool draw()
 {
     if (draw_flag >= 100)
         return true;
-    int count_white = 0, count_black = 0;
+    
     int num_knights[2] = {0, 0};
     int num_bishops[2] = {0, 0};
     char color_square[2][10] = {{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}};

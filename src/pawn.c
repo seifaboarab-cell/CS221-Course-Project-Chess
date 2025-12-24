@@ -96,25 +96,24 @@ bool pawn_has_legal_move(int y1, int x1, bool is_black)
             reset_position();
         }
     }
-    if (1)
+    
+    y_check = is_black ? y1 - 2 : y1 + 2;
+    int y_check2 = is_black ? y1 - 1 : y1 + 1;
+    if ((y1 == 1 && !is_black && !(isalpha(board[y_check][x1])) && !isalpha(board[y_check2][x1])) || (y1 == 6 && is_black && !(isalpha(board[y_check][x1])) && !isalpha(board[y_check2][x1])))
     {
-        int y_check = is_black ? y1 - 2 : y1 + 2;
-        int y_check2 = is_black ? y1 - 1 : y1 + 1;
-        if ((y1 == 1 && !is_black && !(isalpha(board[y_check][x1])) && !isalpha(board[y_check2][x1])) || (y1 == 6 && is_black && !(isalpha(board[y_check][x1])) && !isalpha(board[y_check2][x1])))
+        board[y_check][x1] = is_black ? 'P' : 'p';
+        set_square_color(y1, x1);
+        if (!is_in_check(is_black))
         {
-            board[y_check][x1] = is_black ? 'P' : 'p';
-            set_square_color(y1, x1);
-            if (!is_in_check(is_black))
-            {
-                reset_position();
-                return true;
-            }
-            else
-            {
-                reset_position();
-            }
+            reset_position();
+            return true;
+        }
+        else
+        {
+            reset_position();
         }
     }
+    
     if (!is_black)
     {
         if (isupper(board[y1 + 1][x1 - 1]))
